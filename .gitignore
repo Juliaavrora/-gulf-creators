@@ -1,0 +1,22 @@
+# Зависимости
+node_modules/
+
+# Сборка
+dist/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Сгенерированный Prisma Client
+packages/db/src/generated/
+
+# Секреты: только .env.example попадает в git
+.env
+.env.local
+.env.*.local
+
+# Разное
+.DS_Store
+*.log
+coverage/

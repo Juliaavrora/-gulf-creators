@@ -1,0 +1,428 @@
+// Модель данных v1 — см. раздел «Модель данных» в SPEC.md.
+//
+// Правила (см. CLAUDE.md):
+// - все суммы — Int в минорных единицах валюты (*_minor), никаких Float/Decimal;
+// - удаления только мягкие: deleted_at, строки не удаляем;
+// - права доступа к контенту — только через access_grants;
+// - на каждый внешний ключ — индекс.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------- Enums ----------
+
+enum Role {
+  fan
+  creator
+  admin
+}
+
+enum AuthProvider {
+  phone
+  google
+  apple
+}
+
+enum Locale {
+  ar
+  en
+}
+
+enum Currency {
+  USD
+  AED
+  SAR
+}
+
+enum CreatorStatus {
+  applied
+  approved
+  suspended
+}
+
+enum KycStatus {
+  not_started
+  pending
+  approved
+  rejected
+}
+
+enum SubscriptionStatus {
+  active
+  past_due
+  canceled
+  expired
+}
+
+enum AccessMode {
+  free
+  subscribers
+  paid
+}
+
+enum ModerationStatus {
+  pending
+  approved
+  flagged
+  rejected
+}
+
+enum MediaKind {
+  photo
+  video
+}
+
+enum MediaStatus {
+  uploading
+  processing
+  ready
+}
+
+enum AccessGrantSource {
+  subscription
+  purchase
+  gift
+}
+
+enum PurchaseKind {
+  post_unlock
+  message_unlock
+  tip
+}
+
+enum PurchaseStatus {
+  pending
+  succeeded
+  failed
+  refunded
+  disputed
+}
+
+enum PayoutStatus {
+  pending
+  in_transit
+  paid
+  failed
+  frozen
+}
+
+enum ModerationTargetType {
+  post
+  message
+  user
+}
+
+enum ReportStatus {
+  open
+  resolved
+  dismissed
+}
+
+enum ModerationActionType {
+  hide_post
+  warn_creator
+  freeze_payouts
+  block_account
+}
+
+// ---------- Таблицы ----------
+
+/// Все аккаунты. Автор — тоже фанат: может подписываться на других.
+model User {
+  id           String       @id @default(uuid()) @db.Uuid
+  phone        String?      @unique
+  email        String?      @unique
+  authProvider AuthProvider @map("auth_provider")
+  role         Role         @default(fan)
+  locale       Locale       @default(ar)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+  deletedAt    DateTime?    @map("deleted_at")
+
+  creatorProfile    CreatorProfile?
+  subscriptions     Subscription[]
+  accessGrants      AccessGrant[]
+  purchases         Purchase[]
+  fanConversations  Conversation[]     @relation("ConversationFan")
+  sentMessages      Message[]
+  reports           Report[]
+  moderationActions ModerationAction[]
+
+  @@map("users")
+}
+
+/// Один к одному с users; первичный ключ = user_id.
+model CreatorProfile {
+  userId          String        @id @map("user_id") @db.Uuid
+  handle          String        @unique
+  displayName     String        @map("display_name")
+  bio             String?
+  avatarUrl       String?       @map("avatar_url")
+  status          CreatorStatus @default(applied)
+  kycStatus       KycStatus     @default(not_started) @map("kyc_status")
+  /// ID connected account у платёжного провайдера (Stripe Connect).
+  payoutAccountId String?       @map("payout_account_id")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  deletedAt       DateTime?     @map("deleted_at")
+
+  user          User               @relation(fields: [userId], references: [id])
+  tiers         SubscriptionTier[]
+  posts         Post[]
+  purchases     Purchase[]
+  conversations Conversation[]     @relation("ConversationCreator")
+  payouts       Payout[]
+
+  @@map("creator_profiles")
+}
+
+/// До 3 уровней на автора (лимит проверяется в API).
+model SubscriptionTier {
+  id         String    @id @default(uuid()) @db.Uuid
+  creatorId  String    @map("creator_id") @db.Uuid
+  name       String
+  priceMinor Int       @map("price_minor")
+  currency   Currency
+  perks      Json?
+  isActive   Boolean   @default(true) @map("is_active")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  creator       CreatorProfile @relation(fields: [creatorId], references: [userId])
+  subscriptions Subscription[]
+  accessGrants  AccessGrant[]
+
+  @@index([creatorId])
+  @@map("subscription_tiers")
+}
+
+/// Статус ведёт webhook платёжного провайдера. Доступ даёт не он, а access_grants.
+model Subscription {
+  id               String             @id @default(uuid()) @db.Uuid
+  fanId            String             @map("fan_id") @db.Uuid
+  tierId           String             @map("tier_id") @db.Uuid
+  status           SubscriptionStatus
+  currentPeriodEnd DateTime           @map("current_period_end")
+  providerSubId    String             @unique @map("provider_sub_id")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  deletedAt        DateTime?          @map("deleted_at")
+
+  fan  User             @relation(fields: [fanId], references: [id])
+  tier SubscriptionTier @relation(fields: [tierId], references: [id])
+
+  @@index([fanId])
+  @@index([tierId])
+  @@map("subscriptions")
+}
+
+model Post {
+  id               String           @id @default(uuid()) @db.Uuid
+  creatorId        String           @map("creator_id") @db.Uuid
+  text             String?
+  accessMode       AccessMode       @map("access_mode")
+  /// Только для access_mode = paid.
+  priceMinor       Int?             @map("price_minor")
+  currency         Currency?
+  publishedAt      DateTime?        @map("published_at")
+  moderationStatus ModerationStatus @default(pending) @map("moderation_status")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+  deletedAt        DateTime?        @map("deleted_at")
+
+  creator      CreatorProfile @relation(fields: [creatorId], references: [userId])
+  media        Media[]
+  accessGrants AccessGrant[]
+
+  @@index([creatorId])
+  @@map("posts")
+}
+
+/// Фото в S3, видео в Mux. Принадлежит посту или сообщению.
+model Media {
+  id              String      @id @default(uuid()) @db.Uuid
+  postId          String?     @map("post_id") @db.Uuid
+  messageId       String?     @map("message_id") @db.Uuid
+  kind            MediaKind
+  storageKey      String?     @map("storage_key")
+  providerAssetId String?     @map("provider_asset_id")
+  status          MediaStatus @default(uploading)
+  /// Длительность видео в секундах.
+  duration        Int?
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  deletedAt       DateTime?   @map("deleted_at")
+
+  post                 Post?     @relation(fields: [postId], references: [id])
+  message              Message?  @relation("MessageAttachments", fields: [messageId], references: [id])
+  referencedByMessages Message[] @relation("MessageMedia")
+
+  @@index([postId])
+  @@index([messageId])
+  @@map("media")
+}
+
+/// Единственный источник правды по правам доступа.
+/// Ровно одно из post_id / tier_id заполнено; expires_at = null — бессрочно.
+model AccessGrant {
+  id        String            @id @default(uuid()) @db.Uuid
+  fanId     String            @map("fan_id") @db.Uuid
+  postId    String?           @map("post_id") @db.Uuid
+  tierId    String?           @map("tier_id") @db.Uuid
+  source    AccessGrantSource
+  expiresAt DateTime?         @map("expires_at")
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @updatedAt @map("updated_at")
+  deletedAt DateTime?         @map("deleted_at")
+
+  fan  User              @relation(fields: [fanId], references: [id])
+  post Post?             @relation(fields: [postId], references: [id])
+  tier SubscriptionTier? @relation(fields: [tierId], references: [id])
+
+  @@index([fanId])
+  @@index([postId])
+  @@index([tierId])
+  @@map("access_grants")
+}
+
+/// Разовые платежи: разблокировка поста, сообщения, чаевые.
+/// target_id — полиморфная ссылка (post или message), без FK; для чаевых null.
+model Purchase {
+  id                String         @id @default(uuid()) @db.Uuid
+  fanId             String         @map("fan_id") @db.Uuid
+  creatorId         String         @map("creator_id") @db.Uuid
+  kind              PurchaseKind
+  targetId          String?        @map("target_id") @db.Uuid
+  amountMinor       Int            @map("amount_minor")
+  feeMinor          Int            @map("fee_minor")
+  currency          Currency
+  providerPaymentId String         @unique @map("provider_payment_id")
+  status            PurchaseStatus @default(pending)
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+  deletedAt         DateTime?      @map("deleted_at")
+
+  fan     User           @relation(fields: [fanId], references: [id])
+  creator CreatorProfile @relation(fields: [creatorId], references: [userId])
+
+  @@index([fanId])
+  @@index([creatorId])
+  @@index([targetId])
+  @@map("purchases")
+}
+
+/// Одна на пару автор–фанат.
+model Conversation {
+  id                 String    @id @default(uuid()) @db.Uuid
+  creatorId          String    @map("creator_id") @db.Uuid
+  fanId              String    @map("fan_id") @db.Uuid
+  lastMessageAt      DateTime? @map("last_message_at")
+  fanTotalSpentMinor Int       @default(0) @map("fan_total_spent_minor")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  deletedAt          DateTime? @map("deleted_at")
+
+  creator  CreatorProfile @relation("ConversationCreator", fields: [creatorId], references: [userId])
+  fan      User           @relation("ConversationFan", fields: [fanId], references: [id])
+  messages Message[]
+
+  // Уникальный индекс покрывает поиск по creator_id.
+  @@unique([creatorId, fanId])
+  @@index([fanId])
+  @@map("conversations")
+}
+
+/// Платное сообщение = price_minor > 0.
+model Message {
+  id             String    @id @default(uuid()) @db.Uuid
+  conversationId String    @map("conversation_id") @db.Uuid
+  senderId       String    @map("sender_id") @db.Uuid
+  text           String?
+  mediaId        String?   @map("media_id") @db.Uuid
+  priceMinor     Int       @default(0) @map("price_minor")
+  currency       Currency?
+  isUnlocked     Boolean   @default(false) @map("is_unlocked")
+  isBroadcast    Boolean   @default(false) @map("is_broadcast")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  sender       User         @relation(fields: [senderId], references: [id])
+  media        Media?       @relation("MessageMedia", fields: [mediaId], references: [id])
+  attachments  Media[]      @relation("MessageAttachments")
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+  @@index([mediaId])
+  @@map("messages")
+}
+
+model Payout {
+  id                 String       @id @default(uuid()) @db.Uuid
+  creatorId          String       @map("creator_id") @db.Uuid
+  amountMinor        Int          @map("amount_minor")
+  currency           Currency
+  periodStart        DateTime     @map("period_start")
+  periodEnd          DateTime     @map("period_end")
+  providerTransferId String?      @unique @map("provider_transfer_id")
+  status             PayoutStatus @default(pending)
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @updatedAt @map("updated_at")
+  deletedAt          DateTime?    @map("deleted_at")
+
+  creator CreatorProfile @relation(fields: [creatorId], references: [userId])
+
+  @@index([creatorId])
+  @@map("payouts")
+}
+
+/// Жалобы. target_id — полиморфная ссылка, без FK.
+model Report {
+  id         String               @id @default(uuid()) @db.Uuid
+  targetType ModerationTargetType @map("target_type")
+  targetId   String               @map("target_id") @db.Uuid
+  reporterId String               @map("reporter_id") @db.Uuid
+  reason     String
+  status     ReportStatus         @default(open)
+  createdAt  DateTime             @default(now()) @map("created_at")
+  updatedAt  DateTime             @updatedAt @map("updated_at")
+  deletedAt  DateTime?            @map("deleted_at")
+
+  reporter User               @relation(fields: [reporterId], references: [id])
+  actions  ModerationAction[]
+
+  @@index([reporterId])
+  @@index([targetType, targetId])
+  @@map("reports")
+}
+
+/// Решения модераторов. report_id — null, если действие по автопроверке, а не по жалобе.
+model ModerationAction {
+  id         String               @id @default(uuid()) @db.Uuid
+  reportId   String?              @map("report_id") @db.Uuid
+  targetType ModerationTargetType @map("target_type")
+  targetId   String               @map("target_id") @db.Uuid
+  action     ModerationActionType
+  reason     String
+  adminId    String               @map("admin_id") @db.Uuid
+  createdAt  DateTime             @default(now()) @map("created_at")
+  updatedAt  DateTime             @updatedAt @map("updated_at")
+  deletedAt  DateTime?            @map("deleted_at")
+
+  report Report? @relation(fields: [reportId], references: [id])
+  admin  User    @relation(fields: [adminId], references: [id])
+
+  @@index([reportId])
+  @@index([adminId])
+  @@index([targetType, targetId])
+  @@map("moderation_actions")
+}

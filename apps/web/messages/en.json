@@ -1,0 +1,12 @@
+{
+  "Home": {
+    "title": "Creators Platform",
+    "description": "Placeholder page. The platform is under construction.",
+    "rtlCheck": "The green bar should be on the left and the text left-aligned."
+  },
+  "LocaleSwitcher": {
+    "label": "Language",
+    "ar": "العربية",
+    "en": "English"
+  }
+}
