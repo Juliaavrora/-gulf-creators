@@ -18,6 +18,13 @@ datasource db {
 
 // ---------- Enums ----------
 
+enum WebhookProvider {
+  stripe
+  mux
+  clerk
+  sumsub
+}
+
 enum Role {
   fan
   creator
@@ -137,6 +144,8 @@ enum ModerationActionType {
 /// Все аккаунты. Автор — тоже фанат: может подписываться на других.
 model User {
   id           String       @id @default(uuid()) @db.Uuid
+  /// ID пользователя в Clerk: связывает вход с нашим аккаунтом.
+  clerkUserId  String       @unique @map("clerk_user_id")
   phone        String?      @unique
   email        String?      @unique
   authProvider AuthProvider @map("auth_provider")
@@ -184,9 +193,12 @@ model CreatorProfile {
 }
 
 /// До 3 уровней на автора (лимит проверяется в API).
+/// level: 1, 2, 3 — чем больше, тем старше уровень. Подписчик уровня N видит посты
+/// с min_tier уровня N и ниже.
 model SubscriptionTier {
   id         String    @id @default(uuid()) @db.Uuid
   creatorId  String    @map("creator_id") @db.Uuid
+  level      Int
   name       String
   priceMinor Int       @map("price_minor")
   currency   Currency
@@ -199,6 +211,7 @@ model SubscriptionTier {
   creator       CreatorProfile @relation(fields: [creatorId], references: [userId])
   subscriptions Subscription[]
   accessGrants  AccessGrant[]
+  posts         Post[]
 
   @@index([creatorId])
   @@map("subscription_tiers")
@@ -229,6 +242,8 @@ model Post {
   creatorId        String           @map("creator_id") @db.Uuid
   text             String?
   accessMode       AccessMode       @map("access_mode")
+  /// Только для access_mode = subscribers: минимальный уровень подписки для доступа.
+  minTierId        String?          @map("min_tier_id") @db.Uuid
   /// Только для access_mode = paid.
   priceMinor       Int?             @map("price_minor")
   currency         Currency?
@@ -238,11 +253,13 @@ model Post {
   updatedAt        DateTime         @updatedAt @map("updated_at")
   deletedAt        DateTime?        @map("deleted_at")
 
-  creator      CreatorProfile @relation(fields: [creatorId], references: [userId])
+  creator      CreatorProfile    @relation(fields: [creatorId], references: [userId])
+  minTier      SubscriptionTier? @relation(fields: [minTierId], references: [id])
   media        Media[]
   accessGrants AccessGrant[]
 
   @@index([creatorId])
+  @@index([minTierId])
   @@map("posts")
 }
 
@@ -425,4 +442,22 @@ model ModerationAction {
   @@index([adminId])
   @@index([targetType, targetId])
   @@map("moderation_actions")
+}
+
+/// Журнал входящих webhook-ов. Уникальный (provider, provider_event_id) делает обработку
+/// идемпотентной: повторное событие не вставится и будет пропущено.
+model WebhookEvent {
+  id              String          @id @default(uuid()) @db.Uuid
+  provider        WebhookProvider
+  providerEventId String          @map("provider_event_id")
+  type            String
+  payload         Json
+  /// null — событие принято, но ещё не обработано (например, упала обработка и ждёт ретрая).
+  processedAt     DateTime?       @map("processed_at")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+  deletedAt       DateTime?       @map("deleted_at")
+
+  @@unique([provider, providerEventId])
+  @@map("webhook_events")
 }

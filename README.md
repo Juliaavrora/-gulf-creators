@@ -15,24 +15,28 @@ apps/
     src/i18n/   настройки локалей и навигации next-intl
   api/        NestJS, TypeScript; пока только GET /health
 packages/
-  db/         Prisma: prisma/schema.prisma (12 таблиц), клиент для API
+  db/         Prisma: prisma/schema.prisma (14 таблиц), prisma/migrations, клиент для API
   shared/     общие типы и константы (локали, валюты, Money)
 SPEC.md       техспека v1
 CLAUDE.md     правила проекта
 .env.example  все переменные окружения
+docker-compose.yml  PostgreSQL 16 и Redis для локальной разработки
+.github/workflows/ci.yml  проверки на каждый PR и пуш в main
 ```
 
 ## Требования
 
 - Node.js 22+
 - pnpm 10 (`corepack enable` подтянет версию из `package.json`)
-- PostgreSQL 16 — нужен только для миграций; сайт и API в спринте 0 работают без базы
+- Docker — для локальных PostgreSQL 16 и Redis (`docker compose up -d`)
 
 ## Запуск локально
 
 ```bash
 pnpm install
 cp .env.example .env.local   # заполнить значения; файл в git не попадает
+docker compose up -d         # PostgreSQL и Redis
+pnpm db:migrate              # применить миграции к локальной базе
 pnpm dev                     # собирает packages/*, затем запускает web и api
 ```
 
@@ -55,3 +59,8 @@ pnpm dev                     # собирает packages/*, затем запу�
 | `pnpm db:migrate` | `prisma migrate dev` (нужны PostgreSQL и `DATABASE_URL`) |
 
 Миграции создаются и применяются только через Prisma Migrate.
+
+## CI
+
+На каждый PR и пуш в `main` GitHub Actions проверяет: Prisma-схема валидна, миграции применяются к пустой базе
+и совпадают со схемой (изменил схему — создай миграцию через `pnpm db:migrate`), типы, сборка.
