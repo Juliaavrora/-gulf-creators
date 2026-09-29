@@ -13,6 +13,11 @@ async function bootstrap() {
     throw new Error('DEV_AUTH must not be enabled in production');
   }
   const app = await NestFactory.create(AppModule);
+  app.enableCors({
+    origin: (process.env.WEB_ORIGIN ?? 'http://localhost:3000').split(','),
+    allowedHeaders: ['content-type', 'x-dev-user'],
+    methods: ['GET', 'POST'],
+  });
   const port = Number(process.env.API_PORT ?? 4000);
   await app.listen(port);
 }

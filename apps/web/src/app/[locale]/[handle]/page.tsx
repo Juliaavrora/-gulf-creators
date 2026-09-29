@@ -1,4 +1,4 @@
-import { type CreatorProfileDto, formatMoney, type Locale, type PostDto, type PostFilter } from '@gulf/shared';
+import { type CreatorProfileDto, formatMoney, type Locale, type MeDto, type PostDto, type PostFilter } from '@gulf/shared';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -7,7 +7,7 @@ import { Link } from '@/i18n/navigation';
 import { apiGet, mediaUrl } from '@/lib/api';
 
 type Params = Promise<{ locale: Locale; handle: string }>;
-type SearchParams = Promise<{ filter?: string }>;
+type SearchParams = Promise<{ filter?: string; posted?: string }>;
 
 const FILTERS: PostFilter[] = ['all', 'video', 'paid'];
 
@@ -27,17 +27,19 @@ export default async function CreatorPage({ params, searchParams }: { params: Pa
   const { locale, handle: rawHandle } = await params;
   setRequestLocale(locale);
   const handle = decodeURIComponent(rawHandle);
-  const { filter: rawFilter } = await searchParams;
+  const { filter: rawFilter, posted } = await searchParams;
   const filter: PostFilter = FILTERS.includes(rawFilter as PostFilter) ? (rawFilter as PostFilter) : 'all';
 
-  const [profile, posts] = await Promise.all([
+  const [profile, posts, me] = await Promise.all([
     getProfile(handle),
     apiGet<PostDto[]>(`/creators/${encodeURIComponent(handle)}/posts?filter=${filter}`),
+    apiGet<MeDto>('/me'),
   ]);
   if (!profile || !posts) notFound();
 
   const t = await getTranslations('Creator');
   const cheapest = profile.tiers[0];
+  const isOwner = me?.creator?.handle === profile.handle;
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col pb-10">
@@ -72,7 +74,22 @@ export default async function CreatorPage({ params, searchParams }: { params: Pa
           <span className="rounded-xl bg-surface px-3 py-1.5">{t('videos', { count: profile.stats.videos })}</span>
         </div>
 
-        {cheapest && (
+        {posted === 'pending' && isOwner && (
+          <p role="status" className="rounded-2xl bg-surface px-4 py-3 text-sm">
+            {t('pendingNotice')}
+          </p>
+        )}
+
+        {isOwner && (
+          <Link href="/studio/new" className="mt-1 flex h-13 items-center justify-center gap-2 rounded-[18px] bg-brand font-bold text-on-brand">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            {t('newPost')}
+          </Link>
+        )}
+
+        {cheapest && !isOwner && (
           <a href="#tiers" className="mt-1 flex h-13 items-center justify-center rounded-[18px] bg-brand font-bold text-on-brand">
             {t('subscribeFrom', { price: formatMoney(cheapest.priceMinor, cheapest.currency, locale) })}
           </a>

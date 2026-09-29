@@ -2,6 +2,7 @@ import { useTranslations } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 import { use } from 'react';
 import { LocaleSwitcher } from '@/components/locale-switcher';
+import { DevUserSwitcher } from '@/components/dev/dev-user-switcher';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 
 export default function HomePage({ params }: { params: Promise<{ locale: string }> }) {
@@ -30,6 +31,8 @@ export default function HomePage({ params }: { params: Promise<{ locale: string 
         <h2 className="ps-1 text-sm font-semibold text-muted">{t('appearance')}</h2>
         <ThemeSwitcher />
       </section>
+
+      <DevUserSwitcher />
     </main>
   );
 }

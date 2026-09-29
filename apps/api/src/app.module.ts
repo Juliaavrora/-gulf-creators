@@ -3,14 +3,20 @@ import { AccessService } from './access/access.service';
 import { CreatorsController } from './creators/creators.controller';
 import { CreatorsService } from './creators/creators.service';
 import { HealthController } from './health/health.controller';
+import { MeController } from './me/me.controller';
 import { MediaController } from './media/media.controller';
 import { MediaStorageService } from './media/media-storage.service';
+import { MediaUrlSignerService } from './media/media-url.signer';
+import { UploadsController } from './media/uploads.controller';
+import { PostsController } from './posts/posts.controller';
 import { PrismaModule } from './prisma/prisma.service';
+import { StudioService } from './viewer/studio.service';
 import { ViewerService } from './viewer/viewer.service';
 
 @Module({
   imports: [PrismaModule],
-  controllers: [HealthController, CreatorsController, MediaController],
-  providers: [AccessService, CreatorsService, MediaStorageService, ViewerService],
+  // UploadsController раньше MediaController: иначе `media/:id` перехватит `media/uploads`.
+  controllers: [HealthController, MeController, CreatorsController, UploadsController, MediaController, PostsController],
+  providers: [AccessService, CreatorsService, MediaStorageService, MediaUrlSignerService, StudioService, ViewerService],
 })
 export class AppModule {}

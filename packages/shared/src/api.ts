@@ -51,3 +51,40 @@ export interface PostDto {
 }
 
 export type PostFilter = 'all' | 'video' | 'paid';
+
+export interface MeDto {
+  role: 'fan' | 'creator' | 'admin';
+  creator: {
+    handle: string;
+    displayName: string;
+    /** Можно ли публиковать: профиль одобрен и KYC пройден. */
+    canPublish: boolean;
+    tiers: TierDto[];
+  } | null;
+}
+
+export interface UploadedMediaDto {
+  id: string;
+  kind: MediaKind;
+  previewPath: string;
+}
+
+export interface CreatePostRequest {
+  text?: string;
+  accessMode: AccessMode;
+  /** Только для subscribers; null/отсутствует — любой тариф автора. */
+  minTierId?: string | null;
+  /** Только для paid. */
+  priceMinor?: number;
+  currency?: Currency;
+  mediaIds: string[];
+  /** ISO-дата отложенной публикации; нет — сразу. */
+  publishAt?: string;
+}
+
+export interface CreatePostResponse {
+  id: string;
+  /** pending — пост ждёт ручной проверки (первые 5 постов автора). */
+  moderationStatus: 'pending' | 'approved';
+  publishedAt: string;
+}

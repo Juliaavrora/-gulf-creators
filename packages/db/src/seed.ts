@@ -76,7 +76,7 @@ async function main() {
           publishedAt: new Date(now - p.daysAgo * DAY),
           moderationStatus: 'approved',
           media: {
-            create: { kind: p.media.kind, storageKey: p.media.key, status: 'ready', duration: p.media.duration },
+            create: { ownerId: sara.id, kind: p.media.kind, storageKey: p.media.key, status: 'ready', duration: p.media.duration },
           },
         },
       });

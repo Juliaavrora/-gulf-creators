@@ -32,6 +32,55 @@
       "paid": "مدفوع"
     },
     "locked": "مقفل",
-    "emptyPosts": "لا توجد منشورات هنا بعد."
+    "emptyPosts": "لا توجد منشورات هنا بعد.",
+    "newPost": "منشور جديد",
+    "pendingNotice": "تم إرسال منشورك للمراجعة، وسيظهر بعد موافقة الفريق."
+  },
+  "Studio": {
+    "title": "منشور جديد",
+    "close": "إغلاق",
+    "signInRequired": "سجّل الدخول لإنشاء منشور.",
+    "creatorsOnly": "إنشاء المنشورات متاح للمبدعين فقط.",
+    "kycRequired": "أكمل التحقق من الهوية لتتمكن من النشر.",
+    "addPhoto": "صورة",
+    "removePhoto": "إزالة الصورة",
+    "uploading": "جارٍ الرفع…",
+    "caption": "الوصف",
+    "captionPlaceholder": "اكتب شيئًا لمشتركيك…",
+    "whoCanSee": "من يشوف المنشور؟",
+    "mode": {
+      "free": "مجاني",
+      "subscribers": "المشتركون",
+      "paid": "مدفوع"
+    },
+    "minTier": "أدنى باقة",
+    "allTiers": "كل المشتركين",
+    "tierAndAbove": "{name} وما فوق",
+    "price": "السعر",
+    "reviewNote": "منشوراتك الخمسة الأولى يراجعها فريقنا قبل النشر. الفيديو قريبًا.",
+    "publish": "نشر",
+    "publishing": "جارٍ النشر…",
+    "waitUploads": "انتظر اكتمال الرفع…",
+    "errors": {
+      "unknown": "حدث خطأ. حاول مرة أخرى.",
+      "empty_post": "أضف نصًا أو صورة.",
+      "price_invalid": "أدخل سعرًا صحيحًا، مثل 25 أو 19.99.",
+      "price_out_of_range": "السعر من 1 إلى 5000.",
+      "paid_requires_media": "المنشور المدفوع يحتاج صورة.",
+      "not_an_image": "هذا الملف ليس صورة.",
+      "unsupported_file_type": "نوع الملف غير مدعوم.",
+      "video_not_supported_yet": "الفيديو قريبًا.",
+      "media_not_available": "إحدى الصور لم تعد متاحة. أزلها وأعد المحاولة.",
+      "min_tier_not_found": "الباقة غير موجودة.",
+      "creator_not_allowed_to_publish": "لا يمكنك النشر حاليًا."
+    }
+  },
+  "DevUser": {
+    "title": "للتطوير فقط: الدخول باسم",
+    "anonymous": "زائر",
+    "dev_sara": "سارة (مبدعة)",
+    "dev_maryam": "مريم (معجبة)",
+    "openCreator": "صفحة sara.brews",
+    "openNewPost": "منشور جديد"
   }
 }

@@ -32,6 +32,55 @@
       "paid": "Paid"
     },
     "locked": "Locked",
-    "emptyPosts": "No posts here yet."
+    "emptyPosts": "No posts here yet.",
+    "newPost": "New post",
+    "pendingNotice": "Your post was sent for review and will appear once our team approves it."
+  },
+  "Studio": {
+    "title": "New post",
+    "close": "Close",
+    "signInRequired": "Sign in to create a post.",
+    "creatorsOnly": "Only creators can post.",
+    "kycRequired": "Finish identity verification to start posting.",
+    "addPhoto": "Photo",
+    "removePhoto": "Remove photo",
+    "uploading": "Uploading…",
+    "caption": "Caption",
+    "captionPlaceholder": "Write something for your subscribers…",
+    "whoCanSee": "Who can see it?",
+    "mode": {
+      "free": "Free",
+      "subscribers": "Subscribers",
+      "paid": "Paid"
+    },
+    "minTier": "Minimum tier",
+    "allTiers": "All subscribers",
+    "tierAndAbove": "{name} and above",
+    "price": "Price",
+    "reviewNote": "Your first 5 posts are reviewed by our team before they go live. Video is coming soon.",
+    "publish": "Post",
+    "publishing": "Posting…",
+    "waitUploads": "Waiting for uploads…",
+    "errors": {
+      "unknown": "Something went wrong. Try again.",
+      "empty_post": "Add text or a photo.",
+      "price_invalid": "Enter a valid price, like 25 or 19.99.",
+      "price_out_of_range": "Price must be between 1 and 5,000.",
+      "paid_requires_media": "A paid post needs a photo.",
+      "not_an_image": "This file isn't an image.",
+      "unsupported_file_type": "This file type isn't supported.",
+      "video_not_supported_yet": "Video is coming soon.",
+      "media_not_available": "One of the photos is no longer available. Remove it and try again.",
+      "min_tier_not_found": "Tier not found.",
+      "creator_not_allowed_to_publish": "You can't post right now."
+    }
+  },
+  "DevUser": {
+    "title": "Development only: sign in as",
+    "anonymous": "Visitor",
+    "dev_sara": "Sara (creator)",
+    "dev_maryam": "Maryam (fan)",
+    "openCreator": "sara.brews page",
+    "openNewPost": "New post"
   }
 }

@@ -163,6 +163,7 @@ model User {
   sentMessages      Message[]
   reports           Report[]
   moderationActions ModerationAction[]
+  media             Media[]
 
   @@map("users")
 }
@@ -269,6 +270,8 @@ model Post {
 /// Фото в S3, видео в Mux. Принадлежит посту или сообщению.
 model Media {
   id              String      @id @default(uuid()) @db.Uuid
+  /// Кто загрузил файл: прикрепить к посту или сообщению можно только своё медиа.
+  ownerId         String      @map("owner_id") @db.Uuid
   postId          String?     @map("post_id") @db.Uuid
   messageId       String?     @map("message_id") @db.Uuid
   kind            MediaKind
@@ -281,10 +284,12 @@ model Media {
   updatedAt       DateTime    @updatedAt @map("updated_at")
   deletedAt       DateTime?   @map("deleted_at")
 
+  owner                User      @relation(fields: [ownerId], references: [id])
   post                 Post?     @relation(fields: [postId], references: [id])
   message              Message?  @relation("MessageAttachments", fields: [messageId], references: [id])
   referencedByMessages Message[] @relation("MessageMedia")
 
+  @@index([ownerId])
   @@index([postId])
   @@index([messageId])
   @@map("media")

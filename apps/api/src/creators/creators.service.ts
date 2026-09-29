@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import type { CreatorProfileDto, Currency, PostDto, PostFilter } from '@gulf/shared';
 import type { Prisma } from '@gulf/db';
 import { AccessService } from '../access/access.service';
+import { MediaUrlSignerService } from '../media/media-url.signer';
 import { PrismaService } from '../prisma/prisma.service';
 
 /** Пост виден публично: опубликован, не удалён, прошёл модерацию (flagged — опубликован с пометкой). */
@@ -23,6 +24,7 @@ export class CreatorsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly access: AccessService,
+    private readonly signer: MediaUrlSignerService,
   ) {}
 
   private findApproved(handle: string) {
@@ -98,7 +100,7 @@ export class CreatorsService {
           kind: m.kind,
           duration: m.duration,
           previewPath: `/media/${m.id}/preview`,
-          path: open ? `/media/${m.id}` : null,
+          path: open ? this.signer.sign(m.id) : null,
         })),
       };
     });

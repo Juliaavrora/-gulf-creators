@@ -1,5 +1,5 @@
 import { createReadStream, type ReadStream } from 'node:fs';
-import { access } from 'node:fs/promises';
+import { access, mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { Injectable } from '@nestjs/common';
 
@@ -16,7 +16,7 @@ export function previewKey(key: string): string {
  */
 @Injectable()
 export class MediaStorageService {
-  private readonly dir = process.env.DEV_MEDIA_DIR ?? resolve(__dirname, '../../dev-media');
+  private readonly dir = process.env.DEV_MEDIA_DIR || resolve(__dirname, '../../dev-media');
 
   async open(key: string): Promise<ReadStream | null> {
     if (!KEY_PATTERN.test(key)) return null;
@@ -27,5 +27,11 @@ export class MediaStorageService {
       return null;
     }
     return createReadStream(file);
+  }
+
+  async save(key: string, data: Buffer): Promise<void> {
+    if (!KEY_PATTERN.test(key)) throw new Error(`Invalid media key: ${key}`);
+    await mkdir(this.dir, { recursive: true });
+    await writeFile(join(this.dir, key), data);
   }
 }

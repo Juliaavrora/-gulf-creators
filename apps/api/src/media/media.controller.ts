@@ -1,10 +1,11 @@
-import { Controller, ForbiddenException, Get, NotFoundException, Param, Req, Res, StreamableFile } from '@nestjs/common';
+import { Controller, ForbiddenException, Get, NotFoundException, Param, Query, Req, Res, StreamableFile } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AccessService } from '../access/access.service';
 import { visiblePostWhere } from '../creators/creators.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ViewerService } from '../viewer/viewer.service';
 import { MediaStorageService, previewKey } from './media-storage.service';
+import { MediaUrlSignerService } from './media-url.signer';
 
 @Controller('media')
 export class MediaController {
@@ -13,6 +14,7 @@ export class MediaController {
     private readonly storage: MediaStorageService,
     private readonly access: AccessService,
     private readonly viewer: ViewerService,
+    private readonly signer: MediaUrlSignerService,
   ) {}
 
   /** Аватар и обложка автора — публичные. */
@@ -34,11 +36,21 @@ export class MediaController {
     return this.send(res, media?.storageKey ? previewKey(media.storageKey) : null, 'public, max-age=300');
   }
 
-  /** Оригинал — только при доступе по access_grants. */
+  /**
+   * Оригинал. Либо по подписанной ссылке (её выдаёт API только при доступе, живёт 5 минут) —
+   * так работает <img> в браузере; либо с проверкой access_grants зрителя.
+   */
   @Get(':id')
-  async original(@Param('id') id: string, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  async original(
+    @Param('id') id: string,
+    @Query('exp') exp: string | undefined,
+    @Query('sig') sig: string | undefined,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const media = await this.findPostMedia(id);
     if (!media?.post) throw new NotFoundException();
+    if (this.signer.verify(media.id, exp, sig)) return this.send(res, media.storageKey, 'private, max-age=300');
     const { post } = media;
     const viewerId = await this.viewer.resolveViewerId(req);
     const unlocked = await this.access.unlockedPostIds(viewerId, [

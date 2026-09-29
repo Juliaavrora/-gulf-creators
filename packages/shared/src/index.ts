@@ -29,3 +29,19 @@ export function formatMoney(amountMinor: number, currency: Currency, locale: Loc
     maximumFractionDigits: whole ? 0 : 2,
   }).format(amountMinor / 100);
 }
+
+/**
+ * Ввод цены человеком → минорные единицы (Int). Принимает арабские цифры (٠-٩) и десятичный разделитель «٫».
+ * «25» → 2500, «25.5» → 2550, «25.55» → 2555; больше двух знаков после запятой или мусор → null.
+ */
+export function parseMajorToMinor(input: string): number | null {
+  const normalized = input
+    .trim()
+    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[٫,]/g, '.');
+  const match = /^(\d{1,7})(?:\.(\d{1,2}))?$/.exec(normalized);
+  if (!match) return null;
+  const whole = Number(match[1]);
+  const frac = Number((match[2] ?? '').padEnd(2, '0'));
+  return whole * 100 + frac;
+}

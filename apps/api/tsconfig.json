@@ -10,7 +10,8 @@
     "isolatedModules": false,
     "declaration": false,
     "types": [
-      "node"
+      "node",
+      "multer"
     ]
   },
   "include": [
