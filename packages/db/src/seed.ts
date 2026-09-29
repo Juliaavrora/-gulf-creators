@@ -7,14 +7,71 @@ import { createPrismaClient } from './index';
 
 const DAY = 24 * 60 * 60 * 1000;
 
+type Prisma = ReturnType<typeof createPrismaClient>;
+
 async function main() {
   const prisma = createPrismaClient();
   try {
+    await seedAdmin(prisma);
+    await seedSara(prisma);
+    await seedNewCreator(prisma);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+/** Модератор платформы. */
+async function seedAdmin(prisma: Prisma) {
+  const exists = await prisma.user.findUnique({ where: { clerkUserId: 'dev_admin' } });
+  if (exists) return;
+  await prisma.user.create({ data: { clerkUserId: 'dev_admin', email: 'admin@example.com', authProvider: 'google', role: 'admin' } });
+  console.log('Seed: админ dev_admin.');
+}
+
+/** Новый автор: первые посты ждут ручной проверки (SPEC: первые 5 постов нового автора). */
+async function seedNewCreator(prisma: Prisma) {
+  const exists = await prisma.creatorProfile.findUnique({ where: { handle: 'noura.bakes' } });
+  if (exists) return;
+  const noura = await prisma.user.create({
+    data: { clerkUserId: 'dev_noura', email: 'noura@example.com', authProvider: 'apple', role: 'creator' },
+  });
+  await prisma.creatorProfile.create({
+    data: {
+      userId: noura.id,
+      handle: 'noura.bakes',
+      displayName: 'نورة',
+      bio: 'حلويات البيت بخطوات بسيطة.',
+      status: 'approved',
+      kycStatus: 'approved',
+    },
+  });
+  await prisma.subscriptionTier.create({
+    data: { creatorId: noura.id, level: 1, name: 'الأساسي', priceMinor: 1900, currency: 'AED', perks: ['كل الوصفات'] },
+  });
+  const pending = [
+    { text: 'أول وصفة لي هنا: قهوة مع كيك الزعفران', key: 'post-crema.jpg', accessMode: 'free' as const, hoursAgo: 5 },
+    { text: 'خلف الكواليس في مطبخي', key: 'post-mimi.jpg', accessMode: 'subscribers' as const, hoursAgo: 2 },
+  ];
+  for (const p of pending) {
+    await prisma.post.create({
+      data: {
+        creatorId: noura.id,
+        text: p.text,
+        accessMode: p.accessMode,
+        publishedAt: new Date(Date.now() - p.hoursAgo * 3600_000),
+        moderationStatus: 'pending',
+        media: { create: { ownerId: noura.id, kind: 'photo', storageKey: p.key, status: 'ready' } },
+      },
+    });
+  }
+  console.log('Seed: новый автор noura.bakes, 2 поста на проверке.');
+}
+
+/** Основной автор с тарифами, постами всех типов и фанатом. */
+async function seedSara(prisma: Prisma) {
+  {
     const existing = await prisma.creatorProfile.findUnique({ where: { handle: 'sara.brews' } });
-    if (existing) {
-      console.log('Seed: данные уже есть, пропускаю.');
-      return;
-    }
+    if (existing) return;
 
     const now = Date.now();
 
@@ -111,8 +168,6 @@ async function main() {
     await prisma.accessGrant.create({ data: { fanId: maryam.id, postId: paidPhoto.id, source: 'purchase' } });
 
     console.log(`Seed: автор sara.brews (${posts.length} постов, тарифы ${basic.level}/${close.level}/${vip.level}), фан dev_maryam.`);
-  } finally {
-    await prisma.$disconnect();
   }
 }
 

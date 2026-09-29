@@ -31,7 +31,7 @@ export function DevUserSwitcher() {
   return (
     <section className="flex flex-col gap-2 rounded-2xl border border-dashed border-line p-3">
       <h2 className="text-sm font-semibold text-muted">{t('title')}</h2>
-      <div role="group" aria-label={t('title')} className="grid grid-cols-3 gap-1 rounded-2xl bg-surface p-1">
+      <div role="group" aria-label={t('title')} className="grid grid-cols-2 gap-1 rounded-2xl bg-surface p-1">
         {options.map((user) => (
           <button
             key={user || 'anon'}
@@ -51,6 +51,7 @@ export function DevUserSwitcher() {
       <div className="flex gap-4 ps-1 text-sm font-semibold text-accent-fg">
         <Link href="/sara.brews">{t('openCreator')}</Link>
         <Link href="/studio/new">{t('openNewPost')}</Link>
+        <Link href="/admin/moderation">{t('openModeration')}</Link>
       </div>
     </section>
   );

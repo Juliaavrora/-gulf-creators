@@ -81,6 +81,44 @@
     "dev_sara": "سارة (مبدعة)",
     "dev_maryam": "مريم (معجبة)",
     "openCreator": "صفحة sara.brews",
-    "openNewPost": "منشور جديد"
+    "openNewPost": "منشور جديد",
+    "dev_admin": "مشرف",
+    "openModeration": "الإشراف"
+  },
+  "Moderation": {
+    "title": "الإشراف",
+    "queueCount": "{count, plural, zero {لا شيء بانتظار المراجعة} one {منشور واحد بانتظار المراجعة} two {منشوران بانتظار المراجعة} few {# منشورات بانتظار المراجعة} many {# منشورًا بانتظار المراجعة} other {# منشور بانتظار المراجعة}}",
+    "signInRequired": "سجّل الدخول للمتابعة.",
+    "adminsOnly": "هذه الصفحة لفريق الإشراف فقط.",
+    "empty": "لا توجد منشورات بانتظار المراجعة.",
+    "auditNote": "كل قرار يُسجَّل باسمك، ويرى المبدع سبب الإخفاء.",
+    "textOnly": "نص فقط",
+    "reason": {
+      "first_posts": "منشور جديد · رقم {n} من أول 5",
+      "auto_flagged": "فحص تلقائي"
+    },
+    "access": {
+      "free": "مجاني",
+      "subscribers": "للمشتركين",
+      "paid": "مدفوع"
+    },
+    "approve": "موافقة",
+    "hide": "إخفاء",
+    "confirmHide": "تأكيد الإخفاء",
+    "cancel": "إلغاء",
+    "hideReason": "سبب الإخفاء (سيراه المبدع)",
+    "hideReasonPlaceholder": "مثال: ملابس سباحة في الإطار",
+    "errors": {
+      "unknown": "حدث خطأ. حاول مرة أخرى.",
+      "reason_required": "اكتب سببًا واضحًا.",
+      "already_decided": "تم اتخاذ قرار بشأن هذا المنشور بالفعل."
+    },
+    "nav": {
+      "label": "لوحة الإدارة",
+      "admin": "الإدارة",
+      "moderation": "الإشراف",
+      "applications": "طلبات المبدعين",
+      "finance": "المالية"
+    }
   }
 }

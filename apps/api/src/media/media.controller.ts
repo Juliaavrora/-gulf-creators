@@ -48,9 +48,13 @@ export class MediaController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
+    // Подписанная ссылка уже означает разрешение API (в том числе модератору — на посты до публикации).
+    if (this.signer.verify(id, exp, sig)) {
+      const signed = await this.prisma.client.media.findFirst({ where: { id, deletedAt: null, status: 'ready' }, select: { storageKey: true } });
+      return this.send(res, signed?.storageKey, 'private, max-age=300');
+    }
     const media = await this.findPostMedia(id);
     if (!media?.post) throw new NotFoundException();
-    if (this.signer.verify(media.id, exp, sig)) return this.send(res, media.storageKey, 'private, max-age=300');
     const { post } = media;
     const viewerId = await this.viewer.resolveViewerId(req);
     const unlocked = await this.access.unlockedPostIds(viewerId, [

@@ -81,6 +81,44 @@
     "dev_sara": "Sara (creator)",
     "dev_maryam": "Maryam (fan)",
     "openCreator": "sara.brews page",
-    "openNewPost": "New post"
+    "openNewPost": "New post",
+    "dev_admin": "Admin",
+    "openModeration": "Moderation"
+  },
+  "Moderation": {
+    "title": "Moderation",
+    "queueCount": "{count, plural, =0 {Nothing to review} one {# post to review} other {# posts to review}}",
+    "signInRequired": "Sign in to continue.",
+    "adminsOnly": "This page is for the moderation team only.",
+    "empty": "No posts waiting for review.",
+    "auditNote": "Every decision is logged under your name; the creator sees the reason for hiding.",
+    "textOnly": "Text only",
+    "reason": {
+      "first_posts": "New creator · post {n} of first 5",
+      "auto_flagged": "Auto-flagged"
+    },
+    "access": {
+      "free": "Free",
+      "subscribers": "Subscribers",
+      "paid": "Paid"
+    },
+    "approve": "Approve",
+    "hide": "Hide",
+    "confirmHide": "Confirm hide",
+    "cancel": "Cancel",
+    "hideReason": "Reason for hiding (the creator will see it)",
+    "hideReasonPlaceholder": "e.g. Swimwear in frame",
+    "errors": {
+      "unknown": "Something went wrong. Try again.",
+      "reason_required": "Write a clear reason.",
+      "already_decided": "This post has already been decided."
+    },
+    "nav": {
+      "label": "Admin",
+      "admin": "Admin",
+      "moderation": "Moderation",
+      "applications": "Creator applications",
+      "finance": "Finance"
+    }
   }
 }

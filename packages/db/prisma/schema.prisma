@@ -133,6 +133,7 @@ enum ReportStatus {
 }
 
 enum ModerationActionType {
+  approve_post
   hide_post
   warn_creator
   freeze_payouts

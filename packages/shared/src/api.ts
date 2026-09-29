@@ -88,3 +88,28 @@ export interface CreatePostResponse {
   moderationStatus: 'pending' | 'approved';
   publishedAt: string;
 }
+
+export type ModerationReason = 'first_posts' | 'auto_flagged';
+
+export interface ModerationItemDto {
+  postId: string;
+  reason: ModerationReason;
+  creator: { handle: string; displayName: string };
+  /** Какой по счёту пост автора (для first_posts). */
+  creatorPostNumber: number;
+  text: string | null;
+  accessMode: AccessMode;
+  priceMinor: number | null;
+  currency: Currency | null;
+  createdAt: string;
+  /** Модератор видит оригиналы: подписанные ссылки. */
+  media: { id: string; kind: MediaKind; path: string }[];
+}
+
+export type ModerationDecision = 'approve' | 'hide';
+
+export interface ModerationDecisionRequest {
+  decision: ModerationDecision;
+  /** Обязательна для hide: автор увидит причину. */
+  reason?: string;
+}

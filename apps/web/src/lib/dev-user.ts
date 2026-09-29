@@ -4,7 +4,7 @@
  */
 export const DEV_AUTH_ENABLED = process.env.NEXT_PUBLIC_DEV_AUTH === 'true';
 export const DEV_USER_COOKIE = 'dev_user';
-export const DEV_USERS = ['dev_sara', 'dev_maryam'] as const;
+export const DEV_USERS = ['dev_sara', 'dev_maryam', 'dev_admin'] as const;
 
 /** Для кода в браузере. */
 export function devUserHeaders(): Record<string, string> {
