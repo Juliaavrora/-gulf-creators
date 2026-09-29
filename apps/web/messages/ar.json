@@ -16,5 +16,22 @@
     "label": "اللغة",
     "ar": "العربية",
     "en": "English"
+  },
+  "Creator": {
+    "metaTitle": "{name} (@{handle}) · dibs",
+    "verified": "حساب موثّق",
+    "posts": "{count, plural, zero {لا منشورات} one {منشور واحد} two {منشوران} few {# منشورات} many {# منشورًا} other {# منشور}}",
+    "videos": "{count, plural, zero {لا فيديو} one {فيديو واحد} two {فيديوهان} few {# فيديوهات} many {# فيديو} other {# فيديو}}",
+    "subscribeFrom": "اشترك · من {price}",
+    "tiers": "الباقات",
+    "perMonth": "/ شهر",
+    "filterLabel": "تصفية المنشورات",
+    "filter": {
+      "all": "الكل",
+      "video": "فيديو",
+      "paid": "مدفوع"
+    },
+    "locked": "مقفل",
+    "emptyPosts": "لا توجد منشورات هنا بعد."
   }
 }

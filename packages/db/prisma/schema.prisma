@@ -173,7 +173,10 @@ model CreatorProfile {
   handle          String        @unique
   displayName     String        @map("display_name")
   bio             String?
+  /// Ключ файла в хранилище медиа (не полный URL): URL строит API.
   avatarUrl       String?       @map("avatar_url")
+  /// Ключ файла обложки в хранилище медиа.
+  coverUrl        String?       @map("cover_url")
   status          CreatorStatus @default(applied)
   kycStatus       KycStatus     @default(not_started) @map("kyc_status")
   /// ID connected account у платёжного провайдера (Stripe Connect).

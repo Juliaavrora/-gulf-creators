@@ -16,5 +16,22 @@
     "label": "Language",
     "ar": "العربية",
     "en": "English"
+  },
+  "Creator": {
+    "metaTitle": "{name} (@{handle}) · dibs",
+    "verified": "Verified",
+    "posts": "{count, plural, one {# post} other {# posts}}",
+    "videos": "{count, plural, one {# video} other {# videos}}",
+    "subscribeFrom": "Subscribe · from {price}",
+    "tiers": "Tiers",
+    "perMonth": "/mo",
+    "filterLabel": "Filter posts",
+    "filter": {
+      "all": "All",
+      "video": "Videos",
+      "paid": "Paid"
+    },
+    "locked": "Locked",
+    "emptyPosts": "No posts here yet."
   }
 }

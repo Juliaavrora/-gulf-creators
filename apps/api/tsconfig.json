@@ -9,7 +9,14 @@
     "emitDecoratorMetadata": true,
     "isolatedModules": false,
     "declaration": false,
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts"
+  ]
 }

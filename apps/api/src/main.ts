@@ -9,6 +9,9 @@ const rootEnv = resolve(__dirname, '../../../.env.local');
 if (existsSync(rootEnv)) process.loadEnvFile(rootEnv);
 
 async function bootstrap() {
+  if (process.env.NODE_ENV === 'production' && process.env.DEV_AUTH === 'true') {
+    throw new Error('DEV_AUTH must not be enabled in production');
+  }
   const app = await NestFactory.create(AppModule);
   const port = Number(process.env.API_PORT ?? 4000);
   await app.listen(port);

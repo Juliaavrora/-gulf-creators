@@ -4,5 +4,6 @@ import { routing } from './i18n/routing';
 export default createMiddleware(routing);
 
 export const config = {
-  matcher: '/((?!api|_next|_vercel|.*\\..*).*)',
+  // Имена авторов бывают с точкой (sara.brews), поэтому пропускаем только настоящие файлы по расширению.
+  matcher: '/((?!api|_next|_vercel|.*\\.(?:ico|png|jpg|jpeg|gif|svg|webp|avif|txt|xml|json|webmanifest|woff2?)$).*)',
 };

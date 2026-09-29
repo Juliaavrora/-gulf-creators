@@ -3,7 +3,7 @@
 Репозиторий `gulf-creators` — платформа монетизации авторов для Залива: платные подписки, платные сообщения, чаевые. Арабский-first, RTL.
 Техспека — [SPEC.md](SPEC.md), правила разработки — [CLAUDE.md](CLAUDE.md).
 
-Текущее состояние: спринт 0, каркас без бизнес-логики.
+Текущее состояние: спринт 1 — страница автора (API + сайт) на тестовых данных, вход ещё не подключён.
 
 ## Что где лежит
 
@@ -13,10 +13,11 @@ apps/
     messages/   переводы: ar.json, en.json
     src/app/    страницы; всё под [locale]
     src/i18n/   настройки локалей и навигации next-intl
-  api/        NestJS, TypeScript; пока только GET /health
+  api/        NestJS: страница автора, посты, отдача медиа; правила доступа — src/access
+    dev-media/  картинки для локальной разработки (CC0)
 packages/
-  db/         Prisma: prisma/schema.prisma (14 таблиц), prisma/migrations, клиент для API
-  shared/     общие типы и константы (локали, валюты, Money)
+  db/         Prisma: prisma/schema.prisma (14 таблиц), prisma/migrations, src/seed.ts, клиент для API
+  shared/     общие типы и константы (локали, валюты, Money, ответы API)
 SPEC.md       техспека v1
 CLAUDE.md     правила проекта
 .env.example  все переменные окружения
@@ -37,6 +38,7 @@ pnpm install
 cp .env.example .env.local   # заполнить значения; файл в git не попадает
 docker compose up -d         # PostgreSQL и Redis
 pnpm db:migrate              # применить миграции к локальной базе
+pnpm db:seed                 # тестовые данные: автор sara.brews и фанат dev_maryam
 pnpm dev                     # собирает packages/*, затем запускает web и api
 ```
 
@@ -44,6 +46,15 @@ pnpm dev                     # собирает packages/*, затем запу�
   При первом заходе на `/` next-intl смотрит на язык браузера: при английском браузере откроется `/en`.
   Выбор в переключателе запоминается в cookie.
 - API: http://localhost:4000/health
+- Страница автора: http://localhost:3000/sara.brews (и `/en/sara.brews`).
+
+Пока вход через Clerk не подключён, зрителя можно подставить в запросах к API заголовком
+`x-dev-user: <clerk_user_id>` (работает только при `DEV_AUTH=true`, в проде запрещено):
+
+```bash
+curl -H 'x-dev-user: dev_maryam' http://localhost:4000/creators/sara.brews/posts   # подписчица «المقرّبون» + 1 покупка
+curl -H 'x-dev-user: dev_sara'   http://localhost:4000/creators/sara.brews/posts   # сама автор — видит всё
+```
 
 Все приложения читают один файл `.env.local` в корне репозитория.
 
@@ -57,10 +68,13 @@ pnpm dev                     # собирает packages/*, затем запу�
 | `pnpm db:generate` | генерация Prisma Client |
 | `pnpm db:validate` | проверка Prisma-схемы |
 | `pnpm db:migrate` | `prisma migrate dev` (нужны PostgreSQL и `DATABASE_URL`) |
+| `pnpm db:seed` | тестовые данные (повторный запуск ничего не дублирует) |
+| `pnpm db:reset` | пересоздать базу с нуля и залить тестовые данные |
+| `pnpm test` | тесты (сейчас — правила доступа в API) |
 
 Миграции создаются и применяются только через Prisma Migrate.
 
 ## CI
 
 На каждый PR и пуш в `main` GitHub Actions проверяет: Prisma-схема валидна, миграции применяются к пустой базе
-и совпадают со схемой (изменил схему — создай миграцию через `pnpm db:migrate`), типы, сборка.
+и совпадают со схемой (изменил схему — создай миграцию через `pnpm db:migrate`), типы, тесты, сборка.

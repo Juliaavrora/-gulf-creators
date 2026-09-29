@@ -11,6 +11,9 @@
     "typecheck": "pnpm --filter @gulf/shared build && pnpm -r typecheck",
     "db:generate": "pnpm --filter @gulf/db generate",
     "db:validate": "pnpm --filter @gulf/db validate",
-    "db:migrate": "pnpm --filter @gulf/db migrate:dev"
+    "db:migrate": "pnpm --filter @gulf/db migrate:dev",
+    "db:seed": "pnpm --filter @gulf/db build && pnpm --filter @gulf/db seed",
+    "db:reset": "pnpm --filter @gulf/db reset && pnpm db:seed",
+    "test": "pnpm -r --if-present test"
   }
 }
