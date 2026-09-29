@@ -1,1 +1,69 @@
 @import 'tailwindcss';
+
+/*
+ * Дизайн-токены Dibs. Все цвета интерфейса — только через эти токены
+ * (bg-bg, text-fg, bg-surface, bg-brand …), а не через hex в разметке и не через dark:.
+ * Тема: без data-theme на <html> — как в системе; data-theme="light" | "dark" — выбор пользователя.
+ */
+
+@theme {
+  --color-brand: #d7ff3a;
+  --color-on-brand: #0b0b0c;
+
+  --font-sans: 'Rubik Variable', system-ui, sans-serif;
+  --font-brand: 'Bricolage Grotesque', 'Rubik Variable', sans-serif;
+}
+
+@theme inline {
+  --color-bg: var(--dibs-bg);
+  --color-surface: var(--dibs-surface);
+  --color-surface-2: var(--dibs-surface-2);
+  --color-line: var(--dibs-line);
+  --color-fg: var(--dibs-fg);
+  --color-muted: var(--dibs-muted);
+  /* Фирменный цвет для текста и линий: лайм на тёмном, чёрный на светлом (лайм на белом нечитаем). */
+  --color-accent-fg: var(--dibs-accent-fg);
+}
+
+:root {
+  color-scheme: light;
+  --dibs-bg: #ffffff;
+  --dibs-surface: #f4f4f5;
+  --dibs-surface-2: #e9e9ec;
+  --dibs-line: #e4e4e7;
+  --dibs-fg: #0b0b0c;
+  --dibs-muted: #5b5b63;
+  --dibs-accent-fg: #0b0b0c;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --dibs-bg: #0b0b0c;
+  --dibs-surface: #17171a;
+  --dibs-surface-2: #232327;
+  --dibs-line: #2a2a2e;
+  --dibs-fg: #ffffff;
+  --dibs-muted: #a1a1aa;
+  --dibs-accent-fg: #d7ff3a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --dibs-bg: #0b0b0c;
+    --dibs-surface: #17171a;
+    --dibs-surface-2: #232327;
+    --dibs-line: #2a2a2e;
+    --dibs-fg: #ffffff;
+    --dibs-muted: #a1a1aa;
+    --dibs-accent-fg: #d7ff3a;
+  }
+}
+
+@layer base {
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+  }
+}

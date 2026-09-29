@@ -1,8 +1,16 @@
 {
   "Home": {
-    "title": "Creators Platform",
-    "description": "Placeholder page. The platform is under construction.",
-    "rtlCheck": "The green bar should be on the left and the text left-aligned."
+    "title": "dibs",
+    "comingSoon": "Coming soon",
+    "headline": "The closest seat to your favorite creators",
+    "description": "Subscriptions, messages and exclusive content from Gulf creators.",
+    "appearance": "Appearance"
+  },
+  "ThemeSwitcher": {
+    "label": "Appearance",
+    "auto": "Auto",
+    "light": "Light",
+    "dark": "Dark"
   },
   "LocaleSwitcher": {
     "label": "Language",

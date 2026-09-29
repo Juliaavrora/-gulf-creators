@@ -2,6 +2,7 @@ import { useTranslations } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 import { use } from 'react';
 import { LocaleSwitcher } from '@/components/locale-switcher';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 
 export default function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = use(params);
@@ -9,14 +10,26 @@ export default function HomePage({ params }: { params: Promise<{ locale: string 
   const t = useTranslations('Home');
 
   return (
-    <main className="mx-auto flex max-w-xl flex-col gap-6 px-4 py-12">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-8 px-4 py-6">
       <header className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold">{t('title')}</h1>
+        <span dir="ltr" className="font-brand text-3xl font-extrabold tracking-tight text-accent-fg">
+          {t('title')}
+        </span>
         <LocaleSwitcher />
       </header>
-      <p className="text-neutral-600">{t('description')}</p>
-      {/* Логические отступы (ps/border-s) — в RTL полоса должна оказаться справа. */}
-      <p className="border-s-4 border-emerald-600 ps-4 text-start">{t('rtlCheck')}</p>
+
+      <section className="flex flex-col gap-3">
+        <span className="self-start rounded-lg bg-brand px-2.5 py-1 text-xs font-bold text-on-brand">
+          {t('comingSoon')}
+        </span>
+        <h1 className="text-3xl font-extrabold leading-tight">{t('headline')}</h1>
+        <p className="leading-relaxed text-muted">{t('description')}</p>
+      </section>
+
+      <section className="flex flex-col gap-2">
+        <h2 className="ps-1 text-sm font-semibold text-muted">{t('appearance')}</h2>
+        <ThemeSwitcher />
+      </section>
     </main>
   );
 }

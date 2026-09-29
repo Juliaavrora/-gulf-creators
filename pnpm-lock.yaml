@@ -38,6 +38,12 @@ importers:
 
   apps/web:
     dependencies:
+      '@fontsource-variable/rubik':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource/bricolage-grotesque':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@gulf/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -154,6 +160,12 @@ packages:
 
   '@emnapi/runtime@1.11.3':
     resolution: {integrity: sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA==}
+
+  '@fontsource-variable/rubik@5.3.0':
+    resolution: {integrity: sha512-yQUf8qle24MJYA+EuauyF+cqjjN6I715nGjitt3sGmwZA0XfA4fWJcLq1C/diREZl4Qzn1E80nLMc0ipC/a4Lg==}
+
+  '@fontsource/bricolage-grotesque@5.3.0':
+    resolution: {integrity: sha512-MdOVb/5in11IfN/IQJOExMuu6AroCIQbirl0yX7NUvKk+h0HYIKfGaVAXRS/gCPil4aFxWhjZnOw28tUwv7tFw==}
 
   '@formatjs/fast-memoize@3.1.7':
     resolution: {integrity: sha512-zXfhLpvA6T7+efdt9JLbBwZ00tT7NsBMDVnDu8rpHeNNv8KfRZAMo2gkG0k9lK/Nzc//3kJ9pImsfuJxk3KhUA==}
@@ -2339,6 +2351,10 @@ snapshots:
     dependencies:
       tslib: 2.8.1
     optional: true
+
+  '@fontsource-variable/rubik@5.3.0': {}
+
+  '@fontsource/bricolage-grotesque@5.3.0': {}
 
   '@formatjs/fast-memoize@3.1.7': {}
 

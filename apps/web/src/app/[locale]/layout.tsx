@@ -5,6 +5,9 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { routing } from '@/i18n/routing';
+import { themeInitScript } from '@/lib/theme';
+import '@fontsource-variable/rubik';
+import '@fontsource/bricolage-grotesque/800.css';
 import '../globals.css';
 
 export function generateStaticParams() {
@@ -35,8 +38,12 @@ export default async function LocaleLayout({
   const dir = RTL_LOCALES.includes(locale as Locale) ? 'rtl' : 'ltr';
 
   return (
-    <html lang={locale} dir={dir}>
-      <body className="min-h-screen bg-white text-neutral-900 antialiased">
+    // suppressHydrationWarning: data-theme ставит скрипт до гидрации.
+    <html lang={locale} dir={dir} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
+      <body className="min-h-screen antialiased">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>

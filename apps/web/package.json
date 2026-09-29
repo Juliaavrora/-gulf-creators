@@ -9,6 +9,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@fontsource-variable/rubik": "^5.3.0",
+    "@fontsource/bricolage-grotesque": "^5.3.0",
     "@gulf/shared": "workspace:*",
     "next": "15.5.26",
     "next-intl": "^4.14.7",

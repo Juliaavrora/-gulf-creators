@@ -23,5 +23,9 @@
 - Схема БД меняется только через Prisma Migrate (`pnpm db:migrate`).
 - Весь текст интерфейса — через next-intl (`apps/web/messages/{ar,en}.json`), без строк в JSX.
   Вёрстка на логических свойствах (`ms-`, `ps-`, `start`, `end`), без `left`/`right`, иначе ломается RTL.
+- Дизайн Dibs: макеты — https://claude.ai/artifact/BRxENNjxc8Bf6ty3TCajcq. Цвета только через токены из
+  `apps/web/src/app/globals.css` (`bg-bg`, `text-fg`, `bg-surface`, `bg-brand`, `text-accent-fg` …): никаких hex в разметке
+  и никаких `dark:`-вариантов — токены сами переключаются между светлой и тёмной темой. Лайм (`brand`) — фон кнопок
+  с чёрным текстом; как цвет текста/линий — только `accent-fg`. Шрифт — Rubik (арабский и латиница), логотип — Bricolage Grotesque.
 - Клиенты говорят только с API. Ключи внешних сервисов и приём их webhook-ов — только в `apps/api`.
 - Не добавлять функции сверх задачи спринта.
