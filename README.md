@@ -77,6 +77,20 @@ curl -H 'x-dev-user: dev_sara'   http://localhost:4000/creators/sara.brews/posts
 
 Миграции создаются и применяются только через Prisma Migrate.
 
+## Демо-стенд (Railway)
+
+Чтобы смотреть и показывать продукт по ссылке. Это не боевой сервер (он будет в AWS, см. SPEC): только тестовые данные,
+включён переключатель «войти как». В одном проекте Railway три сервиса, все из этого репозитория (корень — корень репо):
+
+| Сервис | Config file | Переменные |
+| --- | --- | --- |
+| PostgreSQL | — (плагин Railway) | — |
+| api | `apps/api/railway.json` | `DATABASE_URL` (из Postgres), `MEDIA_SIGNING_SECRET`, `WEB_ORIGIN` (адрес web), `DEV_AUTH=true`, `DEMO_MODE=true` |
+| web | `apps/web/railway.json` | `NEXT_PUBLIC_API_URL` (адрес api), `API_URL` (внутренний адрес api), `NEXT_PUBLIC_DEV_AUTH=true` |
+
+api при каждом запуске применяет миграции и заливает тестовые данные (повторно ничего не дублирует).
+Загруженные на стенде фото хранятся на диске сервиса и пропадают при новом деплое — для демо это нормально.
+
 ## CI
 
 На каждый PR и пуш в `main` GitHub Actions проверяет: Prisma-схема валидна, миграции применяются к пустой базе

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "RAILPACK",
+    "buildCommand": "pnpm --filter @gulf/web... build",
+    "watchPatterns": [
+      "apps/web/**",
+      "packages/shared/**",
+      "pnpm-lock.yaml"
+    ]
+  },
+  "deploy": {
+    "startCommand": "pnpm --filter @gulf/web start",
+    "healthcheckPath": "/en",
+    "restartPolicyType": "ON_FAILURE"
+  }
+}

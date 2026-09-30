@@ -9,7 +9,9 @@ const rootEnv = resolve(__dirname, '../../../.env.local');
 if (existsSync(rootEnv)) process.loadEnvFile(rootEnv);
 
 async function bootstrap() {
-  if (process.env.NODE_ENV === 'production' && process.env.DEV_AUTH === 'true') {
+  // Вход «как тестовый пользователь» запрещён в проде. Исключение — демо-стенд (DEMO_MODE=true):
+  // только тестовые данные, без настоящих пользователей и денег.
+  if (process.env.NODE_ENV === 'production' && process.env.DEV_AUTH === 'true' && process.env.DEMO_MODE !== 'true') {
     throw new Error('DEV_AUTH must not be enabled in production');
   }
   const app = await NestFactory.create(AppModule);
@@ -18,7 +20,8 @@ async function bootstrap() {
     allowedHeaders: ['content-type', 'x-dev-user'],
     methods: ['GET', 'POST'],
   });
-  const port = Number(process.env.API_PORT ?? 4000);
+  // PORT задаёт хостинг (Railway), API_PORT — локальная разработка.
+  const port = Number(process.env.PORT ?? process.env.API_PORT ?? 4000);
   await app.listen(port);
 }
 
