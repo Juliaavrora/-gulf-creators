@@ -120,5 +120,10 @@
       "applications": "طلبات المبدعين",
       "finance": "المالية"
     }
+  },
+  "Auth": {
+    "signIn": "تسجيل الدخول",
+    "signInTitle": "تسجيل الدخول · dibs",
+    "signUpTitle": "إنشاء حساب · dibs"
   }
 }

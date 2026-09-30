@@ -4,7 +4,7 @@ import { formatMoney, type Locale, type ModerationDecisionRequest, type Moderati
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { devUserHeaders } from '@/lib/dev-user';
+import { apiHeaders } from '@/lib/api-headers';
 import { mediaUrl, PUBLIC_API_URL } from '@/lib/media-url';
 
 export function ModerationCard({ item, locale }: { item: ModerationItemDto; locale: Locale }) {
@@ -21,7 +21,7 @@ export function ModerationCard({ item, locale }: { item: ModerationItemDto; loca
     try {
       const res = await fetch(`${PUBLIC_API_URL}/admin/moderation/posts/${item.postId}/decision`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json', ...devUserHeaders() },
+        headers: { 'content-type': 'application/json', ...(await apiHeaders()) },
         body: JSON.stringify(body),
       });
       if (!res.ok) {

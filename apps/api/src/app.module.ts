@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AccessService } from './access/access.service';
 import { AdminService } from './admin/admin.service';
+import { ClerkUsersService } from './auth/clerk-users.service';
 import { ModerationController } from './admin/moderation.controller';
 import { CreatorsController } from './creators/creators.controller';
 import { CreatorsService } from './creators/creators.service';
@@ -19,6 +20,6 @@ import { ViewerService } from './viewer/viewer.service';
   imports: [PrismaModule],
   // UploadsController раньше MediaController: иначе `media/:id` перехватит `media/uploads`.
   controllers: [HealthController, MeController, CreatorsController, UploadsController, MediaController, PostsController, ModerationController],
-  providers: [AccessService, AdminService, CreatorsService, MediaStorageService, MediaUrlSignerService, StudioService, ViewerService],
+  providers: [AccessService, AdminService, ClerkUsersService, CreatorsService, MediaStorageService, MediaUrlSignerService, StudioService, ViewerService],
 })
 export class AppModule {}

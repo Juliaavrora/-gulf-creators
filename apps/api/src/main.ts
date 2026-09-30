@@ -17,7 +17,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
     origin: (process.env.WEB_ORIGIN ?? 'http://localhost:3000').split(','),
-    allowedHeaders: ['content-type', 'x-dev-user'],
+    allowedHeaders: ['content-type', 'authorization', 'x-dev-user'],
     methods: ['GET', 'POST'],
   });
   // PORT задаёт хостинг (Railway), API_PORT — локальная разработка.

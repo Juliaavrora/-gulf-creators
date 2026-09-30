@@ -12,7 +12,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
-import { devUserHeaders } from '@/lib/dev-user';
+import { apiHeaders } from '@/lib/api-headers';
 import { PUBLIC_API_URL } from '@/lib/media-url';
 
 type Upload = { key: string; objectUrl: string; status: 'uploading' | 'ready' | 'error'; mediaId?: string; error?: string };
@@ -56,7 +56,7 @@ export function NewPostForm({ handle, tiers }: { handle: string; tiers: TierDto[
       const form = new FormData();
       form.append('file', file);
       try {
-        const res = await fetch(`${PUBLIC_API_URL}/media/uploads`, { method: 'POST', body: form, headers: devUserHeaders() });
+        const res = await fetch(`${PUBLIC_API_URL}/media/uploads`, { method: 'POST', body: form, headers: await apiHeaders() });
         if (!res.ok) throw new Error(await errorCode(res));
         const media = (await res.json()) as UploadedMediaDto;
         setUploads((prev) => prev.map((u) => (u.key === key ? { ...u, status: 'ready', mediaId: media.id } : u)));
@@ -97,7 +97,7 @@ export function NewPostForm({ handle, tiers }: { handle: string; tiers: TierDto[
     try {
       const res = await fetch(`${PUBLIC_API_URL}/posts`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json', ...devUserHeaders() },
+        headers: { 'content-type': 'application/json', ...(await apiHeaders()) },
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error(await errorCode(res));

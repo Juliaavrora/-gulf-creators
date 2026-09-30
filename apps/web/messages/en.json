@@ -120,5 +120,10 @@
       "applications": "Creator applications",
       "finance": "Finance"
     }
+  },
+  "Auth": {
+    "signIn": "Sign in",
+    "signInTitle": "Sign in · dibs",
+    "signUpTitle": "Create account · dibs"
   }
 }

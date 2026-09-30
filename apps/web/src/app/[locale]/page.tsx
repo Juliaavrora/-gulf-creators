@@ -1,6 +1,7 @@
 import { useTranslations } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 import { use } from 'react';
+import { AuthButton } from '@/components/auth/auth-button';
 import { LocaleSwitcher } from '@/components/locale-switcher';
 import { DevUserSwitcher } from '@/components/dev/dev-user-switcher';
 import { ThemeSwitcher } from '@/components/theme-switcher';
@@ -16,7 +17,10 @@ export default function HomePage({ params }: { params: Promise<{ locale: string 
         <span dir="ltr" className="font-brand text-3xl font-extrabold tracking-tight text-accent-fg">
           {t('title')}
         </span>
-        <LocaleSwitcher />
+        <div className="flex items-center gap-2">
+          <LocaleSwitcher />
+          <AuthButton />
+        </div>
       </header>
 
       <section className="flex flex-col gap-3">

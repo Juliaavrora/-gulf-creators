@@ -3,7 +3,7 @@
 Репозиторий `gulf-creators` — платформа монетизации авторов для Залива: платные подписки, платные сообщения, чаевые. Арабский-first, RTL.
 Техспека — [SPEC.md](SPEC.md), правила разработки — [CLAUDE.md](CLAUDE.md).
 
-Текущее состояние: спринт 1 — страница автора, создание поста с фото, модерация первых постов (API + сайт); вход ещё не подключён.
+Текущее состояние: спринт 1 — страница автора, создание поста с фото, модерация первых постов, вход через Clerk (API + сайт).
 
 ## Что где лежит
 
@@ -50,7 +50,12 @@ pnpm dev                     # собирает packages/*, затем запу�
 - Новый пост: http://localhost:3000/studio/new (нужно «войти» как автор, см. ниже).
 - Модерация: http://localhost:3000/admin/moderation (нужно «войти» как админ).
 
-Пока вход через Clerk не подключён, на главной сайта есть переключатель «войти как» (аноним / Сара — автор / Марьям — фан / админ;
+Вход — через Clerk: кнопка «Войти» в шапке, страницы `/sign-in` и `/sign-up`. Способы входа (телефон, Google, Apple)
+включаются в панели Clerk, в коде только готовые окна Clerk. Нужны `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` и `CLERK_SECRET_KEY`;
+без них сайт работает, но вход только тестовый (см. ниже). Сайт передаёт в API токен Clerk (`Authorization: Bearer`),
+API проверяет его и при первом входе создаёт пользователя в `users` (по `clerk_user_id`, роль fan). Роли — только из нашей БД.
+
+Параллельно, для разработки и демо-стенда, на главной есть переключатель «войти как» (аноним / Сара — автор / Марьям — фан / админ;
 только при `NEXT_PUBLIC_DEV_AUTH=true`). В запросах к API напрямую зрителя можно подставить заголовком
 `x-dev-user: <clerk_user_id>` (работает только при `DEV_AUTH=true`, в проде запрещено):
 
@@ -73,7 +78,7 @@ curl -H 'x-dev-user: dev_sara'   http://localhost:4000/creators/sara.brews/posts
 | `pnpm db:migrate` | `prisma migrate dev` (нужны PostgreSQL и `DATABASE_URL`) |
 | `pnpm db:seed` | тестовые данные (повторный запуск ничего не дублирует) |
 | `pnpm db:reset` | пересоздать базу с нуля и залить тестовые данные |
-| `pnpm test` | тесты API: правила доступа, подписанные ссылки, проверка поста, ввод цены, решения модерации |
+| `pnpm test` | тесты API: проверка токена Clerk, правила доступа, подписанные ссылки, проверка поста, ввод цены, решения модерации |
 
 Миграции создаются и применяются только через Prisma Migrate.
 
@@ -85,8 +90,8 @@ curl -H 'x-dev-user: dev_sara'   http://localhost:4000/creators/sara.brews/posts
 | Сервис | Config file | Переменные |
 | --- | --- | --- |
 | PostgreSQL | — (плагин Railway) | — |
-| api | `apps/api/railway.json` | `DATABASE_URL` (из Postgres), `MEDIA_SIGNING_SECRET`, `WEB_ORIGIN` (адрес web), `DEV_AUTH=true`, `DEMO_MODE=true` |
-| web | `apps/web/railway.json` | `NEXT_PUBLIC_API_URL` (адрес api), `API_URL` (внутренний адрес api), `NEXT_PUBLIC_DEV_AUTH=true` |
+| api | `apps/api/railway.json` | `DATABASE_URL` (из Postgres), `MEDIA_SIGNING_SECRET`, `WEB_ORIGIN` (адрес web), `CLERK_SECRET_KEY`, `DEV_AUTH=true`, `DEMO_MODE=true` |
+| web | `apps/web/railway.json` | `NEXT_PUBLIC_API_URL` (адрес api), `API_URL` (внутренний адрес api), `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `NEXT_PUBLIC_DEV_AUTH=true` |
 
 api при каждом запуске применяет миграции и заливает тестовые данные (повторно ничего не дублирует).
 Загруженные на стенде фото хранятся на диске сервиса и пропадают при новом деплое — для демо это нормально.
