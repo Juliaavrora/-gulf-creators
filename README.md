@@ -80,13 +80,20 @@ curl -H 'x-dev-user: dev_sara'   http://localhost:4000/creators/sara.brews/posts
 ## Демо-стенд (Railway)
 
 Чтобы смотреть и показывать продукт по ссылке. Это не боевой сервер (он будет в AWS, см. SPEC): только тестовые данные,
-включён переключатель «войти как». В одном проекте Railway три сервиса, все из этого репозитория (корень — корень репо):
+включён переключатель «войти как». Проект Railway `dibs-demo`, три сервиса, код api и web — из корня репо:
 
-| Сервис | Config file | Переменные |
+- web: https://web-production-dd3d3.up.railway.app
+- api: https://api-production-650eb.up.railway.app
+
+| Сервис | Настройки сборки и запуска | Переменные |
 | --- | --- | --- |
-| PostgreSQL | — (плагин Railway) | — |
-| api | `apps/api/railway.json` | `DATABASE_URL` (из Postgres), `MEDIA_SIGNING_SECRET`, `WEB_ORIGIN` (адрес web), `DEV_AUTH=true`, `DEMO_MODE=true` |
+| Postgres | образ `ghcr.io/railwayapp-templates/postgres-ssl:16` + том | `POSTGRES_*`, `DATABASE_URL` |
+| api | `apps/api/railway.json` | `DATABASE_URL` (из Postgres), `MEDIA_SIGNING_SECRET`, `WEB_ORIGIN` (адрес web), `DEV_AUTH=true`, `DEMO_MODE=true`, `PORT=4000` |
 | web | `apps/web/railway.json` | `NEXT_PUBLIC_API_URL` (адрес api), `API_URL` (внутренний адрес api), `NEXT_PUBLIC_DEV_AUTH=true` |
+
+Railway больше не принимает `railway.json` как config file у новых сервисов, поэтому значения из этих файлов
+(сборка, запуск, healthcheck, watch-пути) заданы в настройках сервисов; при изменении файлов — поправить и там.
+Выкладка кода: `railway up -s api` и `railway up -s web` из корня репо (с токеном проекта в `RAILWAY_TOKEN`).
 
 api при каждом запуске применяет миграции и заливает тестовые данные (повторно ничего не дублирует).
 Загруженные на стенде фото хранятся на диске сервиса и пропадают при новом деплое — для демо это нормально.
